@@ -2,6 +2,7 @@ package com.mercadolibre.refunds_consistency.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mercadolibre.refunds_consistency.constants.FinalStatus;
+import com.mercadolibre.refunds_consistency.constants.HeadersName;
 import com.mercadolibre.refunds_consistency.constants.UrlRequest;
 import com.mercadolibre.refunds_consistency.dto.PaymentDTO;
 import com.mercadolibre.refunds_consistency.model.PayinResponse;
@@ -11,11 +12,14 @@ import com.mercadolibre.refunds_consistency.model.ResponseModel;
 import lombok.Getter;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RefundConsistencyService {
@@ -24,17 +28,20 @@ public class RefundConsistencyService {
     private HttpMethod httpMethod;
     private HttpEntity<?> httpEntity;
     private ResponseEntity responseEntity;
+    private Map<String, String> requestHeaders;
     @Getter
     private List<ResponseModel> responseRequestList;
 
 
-    public List<ResponseModel> proccessPayments(List<PaymentDTO> payments, String furyToken, String cookieSessionToken){
-        this.responseRequestList  = new ArrayList<>();
-        HttpHeaders headers = this.setHeaders(furyToken, cookieSessionToken);
-        setHttpMethod(HttpMethod.GET);
-        this.httpEntity = new HttpEntity<>(headers);
+    public List<ResponseModel> proccessPayments(List<PaymentDTO> payments, Map<String, String> requestHeaders){
+        this.responseRequestList = new ArrayList<>();
+        this.getClientHeaders(requestHeaders);
+        this.setHttpMethod(HttpMethod.GET);
+
 
         for(PaymentDTO paymentDTO : payments) {
+            HttpHeaders headers = this.setHeaders(HeadersName.FURY_HEADER, HeadersName.ONE_SOURCE_COOKIE_HEADER);
+            this.httpEntity = new HttpEntity<>(headers);
             Long paymentId = paymentDTO.getPayment_id();
             String uriRequestOneSource = this.buildOneSourceUri(paymentId);
             this.doRequestApi(uriRequestOneSource);
@@ -45,12 +52,12 @@ public class RefundConsistencyService {
 
             String responseBody = (String) this.responseEntity.getBody();
             PaymentResponse responsePayment = (PaymentResponse) parseResponseEntity(responseBody, new PaymentResponse());
-            PayinResponse responsePayin = checkPaymentInPayin(responsePayment, furyToken);
-
+            PayinResponse responsePayin = checkPaymentInPayin(responsePayment);
             this.mountResponseAnalisys(responsePayment, responsePayin);
         }
         return this.responseRequestList;
     }
+
 
     private void doRequestApi(String urlRequest) {
         try{
@@ -60,9 +67,7 @@ public class RefundConsistencyService {
         }
     }
 
-    private PayinResponse checkPaymentInPayin(PaymentResponse paymentResponse, String furyToken) {
-        HttpHeaders headers = this.setHeaders(furyToken, "");
-
+    private PayinResponse checkPaymentInPayin(PaymentResponse paymentResponse) {
         Payment payment = paymentResponse.getPayments().get(0);
         String bankTransferId = this.getBankTransferId(payment);
 
@@ -72,8 +77,9 @@ public class RefundConsistencyService {
 
         String uriRequestPayinAPI = this.buildPayinAPIUri(bankTransferId);
 
-        setHttpMethod(HttpMethod.GET);
+        HttpHeaders headers = this.setHeaders(HeadersName.FURY_HEADER);
         this.httpEntity = new HttpEntity<>(headers);
+        setHttpMethod(HttpMethod.GET);
         this.doRequestApi(uriRequestPayinAPI);
 
         if(this.responseEntity == null){
@@ -82,6 +88,25 @@ public class RefundConsistencyService {
 
         String responseBody = (String) this.responseEntity.getBody();
         return (PayinResponse) parseResponseEntity(responseBody, new PayinResponse());
+    }
+
+
+    private void getClientHeaders(Map<String, String> requestHeaders) {
+        Map<String, String> toUpperCaseHeaders = new HashMap<>();
+        requestHeaders.forEach((key, value) -> {
+            toUpperCaseHeaders.put(key.toUpperCase(), value);
+        });
+        this.requestHeaders = toUpperCaseHeaders;
+    }
+
+
+    private HttpHeaders setHeaders(String... headers) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Content-Type", "application/json");
+        for(String header : headers){
+            httpHeaders.set(header, this.requestHeaders.get(header));
+        }
+        return httpHeaders;
     }
 
 
@@ -146,15 +171,6 @@ public class RefundConsistencyService {
         return (payment.getTransaction_details().getBank_transfer_id() != null && payment.getTransaction_details().getBank_transfer_id() != 0)
                 ? payment.getTransaction_details().getBank_transfer_id().toString()
                 : null;
-    }
-
-
-    private HttpHeaders setHeaders(String furyToken, String cookieToken) {
-        HttpHeaders header = new HttpHeaders();
-        header.set("Content-Type", "application/json");
-        header.set("x-auth-token", furyToken);
-        header.set("cookie", cookieToken);
-        return header;
     }
 
 

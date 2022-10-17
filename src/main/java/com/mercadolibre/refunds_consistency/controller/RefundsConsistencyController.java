@@ -1,5 +1,6 @@
 package com.mercadolibre.refunds_consistency.controller;
 
+import com.mercadolibre.refunds_consistency.constants.HeadersName;
 import com.mercadolibre.refunds_consistency.dto.PaymentDTO;
 import com.mercadolibre.refunds_consistency.model.ResponseModel;
 import com.mercadolibre.refunds_consistency.service.RefundConsistencyService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class RefundsConsistencyController {
@@ -18,11 +20,10 @@ public class RefundsConsistencyController {
 
     @GetMapping("/check_consistency")
     private ResponseEntity<List<ResponseModel>> checkPaymentsRefundConsistency(
-            @RequestHeader(name = "x-auth-token") String furyToken,
-            @RequestHeader(name = "cookie") String cookieSessionToken,
+            @RequestHeader Map<String, String> headers,
             @RequestBody List<@Valid PaymentDTO> payments
     ) {
-        List<ResponseModel> paymentsList = refundConsistencyService.proccessPayments(payments, furyToken, cookieSessionToken);
+        List<ResponseModel> paymentsList = refundConsistencyService.proccessPayments(payments, headers);
         return ResponseEntity.ok().body(paymentsList);
     }
 }
