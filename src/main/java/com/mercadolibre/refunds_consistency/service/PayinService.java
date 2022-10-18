@@ -7,8 +7,6 @@ import com.mercadolibre.refunds_consistency.model.Payment;
 import com.mercadolibre.refunds_consistency.model.PaymentResponse;
 import com.mercadolibre.refunds_consistency.utils.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

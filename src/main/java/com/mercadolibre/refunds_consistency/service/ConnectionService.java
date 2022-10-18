@@ -1,10 +1,12 @@
 package com.mercadolibre.refunds_consistency.service;
 
+import com.mercadolibre.refunds_consistency.constants.HeadersName;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -27,7 +29,7 @@ public class ConnectionService {
         HttpEntity<?> httpEntity = new HttpEntity<>(this.setHeaders(headers));
         try{
             return restTemplate.exchange(urlRequest, httpMethodRequest, httpEntity, String.class);
-        }catch(RuntimeException e){
+        }catch(RestClientException e){
             return null;
         }
     }
@@ -55,7 +57,11 @@ public class ConnectionService {
     public void getClientHeaders(Map<String, String> requestHeaders) {
         Map<String, String> toUpperCaseHeaders = new HashMap<>();
         requestHeaders.forEach((key, value) -> {
-            toUpperCaseHeaders.put(key.toUpperCase(), value);
+            if(key.equalsIgnoreCase(HeadersName.ONE_SOURCE_COOKIE_HEADER)){
+                toUpperCaseHeaders.put(key.toUpperCase(), "session_id="+value);
+            }else{
+                toUpperCaseHeaders.put(key.toUpperCase(), value);
+            }
         });
         this.requestHeaders = toUpperCaseHeaders;
     }
