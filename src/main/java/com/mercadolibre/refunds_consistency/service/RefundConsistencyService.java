@@ -43,17 +43,11 @@ public class RefundConsistencyService {
         connectionService.getClientHeaders(requestHeaders);
 
         for(PaymentDTO paymentDTO : payments) {
-            String uri = paymentService.buildOneSourceUri(paymentDTO.getPayment_id());
-            ResponseEntity responseRequest = connectionService.doRequestApi(uri, HttpMethod.GET, HeadersName.FURY_HEADER, HeadersName.ONE_SOURCE_COOKIE_HEADER);
-
-            if(responseRequest == null){
-                continue;
+            PaymentResponse responsePayment = paymentService.checkPaymentInOneSource(paymentDTO);
+            if(responsePayment != null){
+                PayinResponse responsePayin = payinService.checkPaymentInPayin(responsePayment);
+                this.mountResponseAnalisys(responsePayment, responsePayin);
             }
-
-            String responseBodyJSON = (String) responseRequest.getBody();
-            PaymentResponse responsePayment = (PaymentResponse) Parser.unmarshal(responseBodyJSON, new PaymentResponse());
-            PayinResponse responsePayin = payinService.checkPaymentInPayin(responsePayment);
-            this.mountResponseAnalisys(responsePayment, responsePayin);
         }
         return this.responseRequestList;
     }
