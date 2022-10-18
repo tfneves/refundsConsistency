@@ -2,9 +2,7 @@ package com.mercadolibre.refunds_consistency.model;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Data
 @Builder

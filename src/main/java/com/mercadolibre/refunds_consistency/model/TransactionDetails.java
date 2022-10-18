@@ -1,10 +1,12 @@
 package com.mercadolibre.refunds_consistency.model;
 
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Data
+@Component
 public class TransactionDetails {
 
     private String acquirer_reference;

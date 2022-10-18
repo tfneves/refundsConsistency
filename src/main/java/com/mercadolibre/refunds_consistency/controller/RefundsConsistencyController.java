@@ -1,6 +1,5 @@
 package com.mercadolibre.refunds_consistency.controller;
 
-import com.mercadolibre.refunds_consistency.constants.HeadersName;
 import com.mercadolibre.refunds_consistency.dto.PaymentDTO;
 import com.mercadolibre.refunds_consistency.model.ResponseModel;
 import com.mercadolibre.refunds_consistency.service.RefundConsistencyService;
@@ -18,12 +17,17 @@ public class RefundsConsistencyController {
     @Autowired
     private RefundConsistencyService refundConsistencyService;
 
+    @GetMapping("/ping")
+    private ResponseEntity<?> ping() {
+        return ResponseEntity.ok().body("pong");
+    }
+
     @GetMapping("/check_consistency")
     private ResponseEntity<List<ResponseModel>> checkPaymentsRefundConsistency(
             @RequestHeader Map<String, String> headers,
             @RequestBody List<@Valid PaymentDTO> payments
     ) {
-        List<ResponseModel> paymentsList = refundConsistencyService.proccessPayments(payments, headers);
+        List<ResponseModel> paymentsList = refundConsistencyService.checkPaymentStatus(payments, headers);
         return ResponseEntity.ok().body(paymentsList);
     }
 }
