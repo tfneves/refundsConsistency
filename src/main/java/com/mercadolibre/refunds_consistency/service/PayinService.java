@@ -35,12 +35,11 @@ public class PayinService {
         String uriRequestPayinAPI = this.buildPayinAPIUri(bankTransferId);
         ResponseEntity responseRequest = connectionService.doRequestApi(uriRequestPayinAPI, HttpMethod.GET, HeadersName.FURY_HEADER);
 
-        if(responseRequest == null){
-            return null;
+        if(responseRequest != null){
+            String responseBodyJSON = (String) responseRequest.getBody();
+            return (PayinResponse) Parser.unmarshal(responseBodyJSON, new PayinResponse());
         }
-
-        String responseBodyJSON = (String) responseRequest.getBody();
-        return (PayinResponse) Parser.unmarshal(responseBodyJSON, new PayinResponse());
+        return null;
     }
 
     /**
