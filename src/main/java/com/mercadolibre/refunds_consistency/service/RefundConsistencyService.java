@@ -1,16 +1,15 @@
 package com.mercadolibre.refunds_consistency.service;
 
 import com.mercadolibre.refunds_consistency.constants.FinalStatus;
-import com.mercadolibre.refunds_consistency.constants.HeadersName;
 import com.mercadolibre.refunds_consistency.dto.PaymentDTO;
 import com.mercadolibre.refunds_consistency.model.PayinResponse;
 import com.mercadolibre.refunds_consistency.model.Payment;
 import com.mercadolibre.refunds_consistency.model.PaymentResponse;
 import com.mercadolibre.refunds_consistency.model.ResponseModel;
-import com.mercadolibre.refunds_consistency.utils.Parser;
+import com.mercadolibre.refunds_consistency.utils.ValidateAuthorizationHeaders;
+import com.mercadolibre.refunds_consistency.utils.ValidateConnection;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +29,10 @@ public class RefundConsistencyService {
     private PaymentService paymentService;
     @Autowired
     private PayinService payinService;
+    @Autowired
+    private ValidateAuthorizationHeaders validateAuthorizationHeaders;
+    @Autowired
+    private ValidateConnection validateConnection;
 
 
     /**
@@ -41,6 +44,8 @@ public class RefundConsistencyService {
     public List<ResponseModel> checkPaymentStatus(List<PaymentDTO> payments, Map<String, String> requestHeaders){
         this.responseRequestList = new ArrayList<>();
         connectionService.getClientHeaders(requestHeaders);
+        validateConnection.validateVPNConnection();
+        validateAuthorizationHeaders.validateCookieHeader();
 
         for(PaymentDTO paymentDTO : payments) {
             PaymentResponse responsePayment = paymentService.checkPaymentInOneSource(paymentDTO);

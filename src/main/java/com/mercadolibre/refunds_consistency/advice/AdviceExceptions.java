@@ -1,5 +1,8 @@
 package com.mercadolibre.refunds_consistency.advice;
 
+import com.mercadolibre.refunds_consistency.constants.ConnectionConstants;
+import com.mercadolibre.refunds_consistency.exceptions.ConnectionTimeoutException;
+import com.mercadolibre.refunds_consistency.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -84,6 +87,26 @@ public class AdviceExceptions {
             String errorMessage = ((FieldError) error).getDefaultMessage();
             errors.put("error_message", errorMessage);
         });
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    @ExceptionHandler(UnauthorizedException.class)
+    private Map<String, String> unauthorizedException(UnauthorizedException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("response", "Unauthorized access - Check your access credentials");
+        errors.put("error_message", e.getMessage());
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
+    @ResponseBody
+    @ExceptionHandler(ConnectionTimeoutException.class)
+    private Map<String, String> timeoutConnectionException(ConnectionTimeoutException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("response", String.format("Connection timeout %d milliseconds exceeded", ConnectionConstants.TIMEOUT_REQUEST));
+        errors.put("error_message", e.getMessage());
         return errors;
     }
 }

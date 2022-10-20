@@ -1,6 +1,6 @@
 package com.mercadolibre.refunds_consistency.service;
 
-import com.mercadolibre.refunds_consistency.constants.HeadersName;
+import com.mercadolibre.refunds_consistency.constants.HeadersNames;
 import com.mercadolibre.refunds_consistency.constants.UrlRequest;
 import com.mercadolibre.refunds_consistency.model.PayinResponse;
 import com.mercadolibre.refunds_consistency.model.Payment;
@@ -29,11 +29,11 @@ public class PayinService {
         String bankTransferId = paymentService.getBankTransferId(payment);
 
         if(bankTransferId == null){
-            return new PayinResponse();
+            return null;
         }
 
         String uriRequestPayinAPI = this.buildPayinAPIUri(bankTransferId);
-        ResponseEntity responseRequest = connectionService.doRequestApi(uriRequestPayinAPI, HttpMethod.GET, HeadersName.FURY_HEADER);
+        ResponseEntity responseRequest = connectionService.doRequestApi(uriRequestPayinAPI, HttpMethod.GET, HeadersNames.FURY_HEADER.getHeaderName());
 
         if(responseRequest != null){
             String responseBodyJSON = (String) responseRequest.getBody();
