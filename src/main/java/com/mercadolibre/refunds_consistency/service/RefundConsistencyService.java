@@ -80,14 +80,9 @@ public class RefundConsistencyService {
         Integer qtdRefundsPayin = (payinResponse != null)
                 ? payinResponse.getRefunds().size()
                 : null;
-        String lastRefundId = (qtdRefundsPayin != null)
-                ? payinResponse.getRefunds().get(qtdRefundsPayin-1).getId()
-                : null;
 
-        String lastRefundStatus = (qtdRefundsPayin != null)
-                ? payinResponse.getRefunds().get(qtdRefundsPayin-1).getStatus()
-                : null;
-
+        String lastRefundId = this.getLastRefundId(qtdRefundsPayin, payinResponse);
+        String lastRefundStatus = this.lastRefundStatus(qtdRefundsPayin, payinResponse);
         String finalStatus = this.chooseFinalStatus(qtdRefundsPayin, qtdRefundsPayments, contingenciesList);
 
         return ResponseModel.builder()
@@ -119,5 +114,37 @@ public class RefundConsistencyService {
         if(!qtdRefundsPayin.equals(qtdRefundsPayments))
             return FinalStatus.SOLVED_INCONSISTENCY.getFinalStatus();
         return FinalStatus.READY_BPO_REFUND.getFinalStatus();
+    }
+
+    /**
+     * Retorna o Id do último refund feito em Payin
+     * @param qtdRefundsPayin
+     * @param payinResponse
+     * @return
+     */
+    private String getLastRefundId(Integer qtdRefundsPayin, PayinResponse payinResponse) {
+        if(qtdRefundsPayin != null && payinResponse.getRefunds().size() > 0) {
+            if(qtdRefundsPayin > 0) {
+                return payinResponse.getRefunds().get(qtdRefundsPayin-1).getId();
+            }
+            return payinResponse.getRefunds().get(qtdRefundsPayin).getId();
+        }
+        return null;
+    }
+
+    /**
+     * Retorna o status do último refund feito em Payin
+     * @param qtdRefundsPayin
+     * @param payinResponse
+     * @return String
+     */
+    private String lastRefundStatus(Integer qtdRefundsPayin, PayinResponse payinResponse) {
+        if(qtdRefundsPayin != null && payinResponse.getRefunds().size() > 0) {
+            if(qtdRefundsPayin > 0) {
+                return payinResponse.getRefunds().get(qtdRefundsPayin-1).getStatus();
+            }
+            return payinResponse.getRefunds().get(qtdRefundsPayin).getStatus();
+        }
+        return null;
     }
 }
