@@ -6,7 +6,6 @@ import com.mercadolibre.refunds_consistency.dto.PaymentDTO;
 import com.mercadolibre.refunds_consistency.model.Payment;
 import com.mercadolibre.refunds_consistency.model.PaymentResponse;
 import com.mercadolibre.refunds_consistency.utils.Parser;
-import com.mercadolibre.refunds_consistency.utils.ValidateAuthorizationHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,11 @@ public class PaymentService {
 
     public PaymentResponse checkPaymentInOneSource(PaymentDTO paymentDTO) {
         String uri = this.buildOneSourceUri(paymentDTO.getPayment_id());
-        ResponseEntity responseRequest = connectionService.doRequestApi(uri, HttpMethod.GET, HeadersNames.FURY_HEADER.getHeaderName(), HeadersNames.ONE_SOURCE_COOKIE_HEADER.getHeaderName());
+        ResponseEntity responseRequest = connectionService.doRequestApi(
+                uri,
+                HttpMethod.GET, HeadersNames.FURY_HEADER.getHeaderName(),
+                HeadersNames.ONE_SOURCE_COOKIE_HEADER.getHeaderName()
+            );
 
         if(responseRequest != null){
             String responseBodyJSON = (String) responseRequest.getBody();
