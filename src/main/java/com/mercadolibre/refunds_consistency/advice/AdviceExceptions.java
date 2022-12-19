@@ -1,7 +1,9 @@
 package com.mercadolibre.refunds_consistency.advice;
 
 import com.mercadolibre.refunds_consistency.constants.ConnectionConstants;
+import com.mercadolibre.refunds_consistency.dto.RequestResponse;
 import com.mercadolibre.refunds_consistency.exceptions.ConnectionTimeoutException;
+import com.mercadolibre.refunds_consistency.exceptions.ForbiddenException;
 import com.mercadolibre.refunds_consistency.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -66,6 +68,7 @@ public class AdviceExceptions {
         Map<String, String> response = new HashMap<>();
         response.put("response", "Unauthorized access - Check your access credentials");
         response.put("error_message", e.getMessage());
+        RequestResponse.statusResponse = null;
         return response;
     }
 
@@ -97,6 +100,7 @@ public class AdviceExceptions {
         Map<String, String> errors = new HashMap<>();
         errors.put("response", "Unauthorized access - Check your access credentials");
         errors.put("error_message", e.getMessage());
+        RequestResponse.statusResponse = null;
         return errors;
     }
 
@@ -107,6 +111,18 @@ public class AdviceExceptions {
         Map<String, String> errors = new HashMap<>();
         errors.put("response", String.format("Connection timeout %d milliseconds exceeded", ConnectionConstants.TIMEOUT_REQUEST));
         errors.put("error_message", e.getMessage());
+        RequestResponse.statusResponse = null;
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    @ExceptionHandler(ForbiddenException.class)
+    private Map<String, String> forbiddenAPIAccess(ForbiddenException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("response", String.format("The user does not have an associated access group, for the application payins-api. You can request the required access-group at the following link https://mordor.adminml.com/access/traffic-catalog?access_groups=Payments-All-Corebackend-BankingConnects"));
+        errors.put("error_message", e.getMessage());
+        RequestResponse.statusResponse = null;
         return errors;
     }
 }

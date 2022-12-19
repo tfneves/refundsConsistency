@@ -45,6 +45,7 @@ public class RefundConsistencyService {
         this.responseRequestList = new ArrayList<>();
         connectionService.getClientHeaders(requestHeaders);
         validateConnection.validateVPNConnection();
+        validateConnection.checkPayinAccess();
         validateAuthorizationHeaders.validateCookieHeader();
 
         for(PaymentDTO paymentDTO : payments) {
