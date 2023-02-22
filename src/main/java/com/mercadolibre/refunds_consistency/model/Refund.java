@@ -14,8 +14,9 @@ public class Refund {
     private String refund_mode;
     private String status;
     private String reason;
-    private String external_id;
+    private String rejected_reason;
     private Boolean pending;
-    private Boolean approved;
+    private String external_id;
     private String return_id;
+    private Boolean approved;
 }

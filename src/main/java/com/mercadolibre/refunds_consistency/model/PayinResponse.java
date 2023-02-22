@@ -25,7 +25,7 @@ public class PayinResponse {
     private Object collector;
     private Object payer;
     private Object currency_id;
-    private Object ate_approved;
+    private Object date_approved;
     private Object date_created;
     private Object date_last_updated;
     private Object payment_type_id;
