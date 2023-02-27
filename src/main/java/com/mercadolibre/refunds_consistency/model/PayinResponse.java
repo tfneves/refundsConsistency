@@ -19,7 +19,7 @@ public class PayinResponse {
     private Object payment_method_id;
     private Object payment_id;
     private Object operation_type;
-    private Object transaction_amount;
+    private Double transaction_amount;
     private Object refunded_amount;
     private Object description;
     private Object collector;

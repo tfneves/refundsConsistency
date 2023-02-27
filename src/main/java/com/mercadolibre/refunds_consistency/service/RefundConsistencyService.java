@@ -2,10 +2,7 @@ package com.mercadolibre.refunds_consistency.service;
 
 import com.mercadolibre.refunds_consistency.constants.FinalStatus;
 import com.mercadolibre.refunds_consistency.dto.PaymentDTO;
-import com.mercadolibre.refunds_consistency.model.PayinResponse;
-import com.mercadolibre.refunds_consistency.model.Payment;
-import com.mercadolibre.refunds_consistency.model.PaymentResponse;
-import com.mercadolibre.refunds_consistency.model.ResponseModel;
+import com.mercadolibre.refunds_consistency.model.*;
 import com.mercadolibre.refunds_consistency.utils.ValidateAuthorizationHeaders;
 import com.mercadolibre.refunds_consistency.utils.ValidateConnection;
 import lombok.Getter;
@@ -85,17 +82,46 @@ public class RefundConsistencyService {
         String lastRefundId = this.getLastRefundId(qtdRefundsPayin, payinResponse);
         String lastRefundStatus = this.lastRefundStatus(qtdRefundsPayin, payinResponse);
         String finalStatus = this.chooseFinalStatus(qtdRefundsPayin, qtdRefundsPayments, contingenciesList);
+        Boolean isPartialRefund = this.isPartialRefund(payinResponse);
+        Double refundAmount = this.getRefundAmount(payinResponse);
 
         return ResponseModel.builder()
             .payment_id(payment.getId())
-            .contingencies(contingenciesList)
-            .contingencie_status(payment.getContingencies().getStatus())
             .qtd_refunds_payments_api(qtdRefundsPayments)
             .bank_transfer_id(payment.getTransaction_details().getBank_transfer_id())
-            .qtd_refunds_payin_api(qtdRefundsPayin)
-            .last_refund_id(lastRefundId)
             .last_refund_status(lastRefundStatus)
+            .contingecie_details(
+                ContingencieDetails.builder()
+                    .contingencies(contingenciesList)
+                    .contingencie_status(payment.getContingencies().getStatus())
+                    .build()
+            )
+            .payin_refund_details(
+                PayinRefundDetails.builder()
+                    .qtd_refunds_payin_api(qtdRefundsPayin)
+                    .last_refund_id(lastRefundId)
+                    .is_partial_refund(isPartialRefund)
+                    .refund_amount(refundAmount)
+                    .build()
+            )
             .final_status_payment(finalStatus).build();
+    }
+
+
+    private Boolean isPartialRefund(PayinResponse payinResponse) {
+        if(payinResponse.getRefunds().size() > 0) {
+            return (!payinResponse.getTransaction_amount().equals(payinResponse.getRefunds().get(payinResponse.getRefunds().size()-1).getAmount()));
+        }
+        return null;
+    }
+
+
+    private Double getRefundAmount(PayinResponse payinResponse) {
+        try{
+            return payinResponse.getRefunds().get(payinResponse.getRefunds().size()-1).getAmount();
+        }catch(Exception e) {
+            return null;
+        }
     }
 
 
