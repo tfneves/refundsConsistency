@@ -19,4 +19,5 @@ public class TransactionDetails {
     private Object payable_deferral_period;
     private Object payment_method_reference_id;
     private BigDecimal total_paid_amount;
+    private Object transaction_id;
 }

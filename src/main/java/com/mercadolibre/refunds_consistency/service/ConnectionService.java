@@ -14,7 +14,7 @@ import java.util.Map;
 @Service
 public class ConnectionService {
 
-    private Map<String, String> requestHeaders;
+    private Map<String, String> requestHeaders = new HashMap<>();
 
     /**
      * Realiza chamada sem payload para a URI informada
@@ -88,6 +88,7 @@ public class ConnectionService {
     private HttpHeaders setHeaders(String... headers) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        httpHeaders.set(HeadersNames.X_CALLER_SCOPES_HEADER.getHeaderName(), "admin");
         for(String header : headers){
             httpHeaders.set(header, this.requestHeaders.get(header));
         }
@@ -96,19 +97,10 @@ public class ConnectionService {
 
     /**
      * Recupera os headers enviados na requisicao feita pelo cliente
-     * e padroniza seus nomes para upper case
      * @param requestHeaders
      * @return void
      */
     public void getClientHeaders(Map<String, String> requestHeaders) {
-        Map<String, String> toUpperCaseHeaders = new HashMap<>();
-        requestHeaders.forEach((key, value) -> {
-            if(key.equalsIgnoreCase(HeadersNames.ONE_SOURCE_COOKIE_HEADER.getHeaderName())){
-                toUpperCaseHeaders.put(key.toUpperCase(), "session_id="+value);
-            }else{
-                toUpperCaseHeaders.put(key.toUpperCase(), value);
-            }
-        });
-        this.requestHeaders = toUpperCaseHeaders;
+        this.requestHeaders = requestHeaders;
     }
 }

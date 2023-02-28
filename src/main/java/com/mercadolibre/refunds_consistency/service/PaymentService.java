@@ -4,7 +4,6 @@ import com.mercadolibre.refunds_consistency.constants.HeadersNames;
 import com.mercadolibre.refunds_consistency.constants.UrlRequest;
 import com.mercadolibre.refunds_consistency.dto.PaymentDTO;
 import com.mercadolibre.refunds_consistency.model.Payment;
-import com.mercadolibre.refunds_consistency.model.PaymentResponse;
 import com.mercadolibre.refunds_consistency.utils.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -18,17 +17,16 @@ public class PaymentService {
     private ConnectionService connectionService;
 
 
-    public PaymentResponse checkPaymentInOneSource(PaymentDTO paymentDTO) {
+    public Payment checkPaymentInOneSource(PaymentDTO paymentDTO) {
         String uri = this.buildOneSourceUri(paymentDTO.getPayment_id());
         ResponseEntity responseRequest = connectionService.doRequestApi(
                 uri,
-                HttpMethod.GET, HeadersNames.FURY_HEADER.getHeaderName(),
-                HeadersNames.ONE_SOURCE_COOKIE_HEADER.getHeaderName()
+                HttpMethod.GET
             );
 
         if(responseRequest != null){
             String responseBodyJSON = (String) responseRequest.getBody();
-            return (PaymentResponse) Parser.unmarshal(responseBodyJSON, new PaymentResponse());
+            return (Payment) Parser.unmarshal(responseBodyJSON, new Payment());
         }
         return null;
     }
@@ -39,7 +37,7 @@ public class PaymentService {
      * @return String
      */
     public String buildOneSourceUri(Long paymentId) {
-        return UrlRequest.URL_ONE_SOURCE + UrlRequest.ENDPOINT_ONE_SOURCE + paymentId.toString();
+        return UrlRequest.URL_INTERNAL_MP + UrlRequest.ENDPOINT_ONE_SOURCE + paymentId.toString() + UrlRequest.FULL_JSON_ENDPOINT;
     }
 
     /**

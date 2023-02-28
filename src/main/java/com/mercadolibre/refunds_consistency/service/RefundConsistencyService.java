@@ -43,24 +43,21 @@ public class RefundConsistencyService {
         connectionService.getClientHeaders(requestHeaders);
         validateConnection.validateVPNConnection();
         validateConnection.checkPayinAccess();
-        validateAuthorizationHeaders.validateCookieHeader();
 
         for(PaymentDTO paymentDTO : payments) {
-            PaymentResponse responsePayment = paymentService.checkPaymentInOneSource(paymentDTO);
-            if(responsePayment != null){
-                PayinResponse responsePayin = payinService.checkPaymentInPayin(responsePayment);
-                this.mountResponseAnalisys(responsePayment, responsePayin);
+            Payment payment = paymentService.checkPaymentInOneSource(paymentDTO);
+            if(payment != null){
+                PayinResponse responsePayin = payinService.checkPaymentInPayin(payment);
+                this.mountResponseAnalisys(payment, responsePayin);
             }
         }
         return this.responseRequestList;
     }
 
 
-    private void mountResponseAnalisys(PaymentResponse paymentResponse, PayinResponse payinResponse) {
-        for(Payment payment : paymentResponse.getPayments()){
-            ResponseModel currentPayment =  buildResponseModel(payment, payinResponse);
-            this.responseRequestList.add(currentPayment);
-        }
+    private void mountResponseAnalisys(Payment payment, PayinResponse payinResponse) {
+        ResponseModel currentPayment =  buildResponseModel(payment, payinResponse);
+        this.responseRequestList.add(currentPayment);
     }
 
 

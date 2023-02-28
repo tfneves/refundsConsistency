@@ -4,7 +4,6 @@ import com.mercadolibre.refunds_consistency.constants.HeadersNames;
 import com.mercadolibre.refunds_consistency.constants.UrlRequest;
 import com.mercadolibre.refunds_consistency.model.PayinResponse;
 import com.mercadolibre.refunds_consistency.model.Payment;
-import com.mercadolibre.refunds_consistency.model.PaymentResponse;
 import com.mercadolibre.refunds_consistency.utils.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -21,11 +20,10 @@ public class PayinService {
 
     /**
      * Realiza request para API de Payin
-     * @param paymentResponse
+     * @param payment
      * @return PayinResponse
      */
-    public PayinResponse checkPaymentInPayin(PaymentResponse paymentResponse) {
-        Payment payment = paymentResponse.getPayments().get(0);
+    public PayinResponse checkPaymentInPayin(Payment payment) {
         String bankTransferId = paymentService.getBankTransferId(payment);
 
         if(bankTransferId == null){
@@ -33,7 +31,7 @@ public class PayinService {
         }
 
         String uriRequestPayinAPI = this.buildPayinAPIUri(bankTransferId);
-        ResponseEntity responseRequest = connectionService.doRequestApi(uriRequestPayinAPI, HttpMethod.GET, HeadersNames.FURY_HEADER.getHeaderName());
+        ResponseEntity responseRequest = connectionService.doRequestApi(uriRequestPayinAPI, HttpMethod.GET);
 
         if(responseRequest != null){
             String responseBodyJSON = (String) responseRequest.getBody();

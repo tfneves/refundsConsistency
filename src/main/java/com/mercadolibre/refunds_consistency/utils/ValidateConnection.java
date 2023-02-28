@@ -22,8 +22,7 @@ public class ValidateConnection {
         String URI_FURY_PING = ConnectionConstants.URI_TEST_VPN;
         this.connectionService.doRequestApi(
                 URI_FURY_PING,
-                HttpMethod.GET,
-                HeadersNames.FURY_HEADER.getHeaderName()
+                HttpMethod.GET
         );
         if (RequestResponse.statusResponse == HttpStatus.REQUEST_TIMEOUT) {
             throw new ConnectionTimeoutException("Please check your VPN connection or network");
@@ -34,8 +33,7 @@ public class ValidateConnection {
         String URI_PAYIN_TEST = UrlRequest.URL_INTERNAL_MP+UrlRequest.ENDPOINT_PAYIN+"12345";
         this.connectionService.doRequestApi(
                 URI_PAYIN_TEST,
-                HttpMethod.GET,
-                HeadersNames.FURY_HEADER.getHeaderName()
+                HttpMethod.GET
         );
         if (RequestResponse.statusResponse == HttpStatus.FORBIDDEN) {
             throw new ForbiddenException("Your access to the Payin API is forbidden");

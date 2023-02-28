@@ -1,7 +1,6 @@
 package com.mercadolibre.refunds_consistency.utils;
 
 import com.mercadolibre.refunds_consistency.constants.HeadersNames;
-import com.mercadolibre.refunds_consistency.constants.UrlRequest;
 import com.mercadolibre.refunds_consistency.dto.RequestResponse;
 import com.mercadolibre.refunds_consistency.exceptions.UnauthorizedException;
 import com.mercadolibre.refunds_consistency.service.ConnectionService;
@@ -19,15 +18,16 @@ public class ValidateAuthorizationHeaders {
     @Autowired
     private PaymentService paymentService;
 
-    public void validateCookieHeader() {
+    /*public void validateTigerTokenHeader() {
         String URI_TEST = paymentService.buildOneSourceUri(12345L);
         this.connectionService.doRequestApi(
                 URI_TEST,
                 HttpMethod.GET,
-                HeadersNames.ONE_SOURCE_COOKIE_HEADER.getHeaderName()
+                HeadersNames.TIGER_TOKEN_HEADER.getHeaderName(),
+                HeadersNames.X_CALLER_SCOPES_HEADER.getHeaderName()
         );
         if (RequestResponse.statusResponse == HttpStatus.UNAUTHORIZED) {
-            throw new UnauthorizedException("cookie header is missing or invalid");
+            throw new UnauthorizedException("x-tiger-token header is missing or invalid");
         }
-    }
+    }*/
 }
