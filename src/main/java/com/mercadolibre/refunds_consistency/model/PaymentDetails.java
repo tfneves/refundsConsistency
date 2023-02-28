@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PayinRefundDetails {
+public class PaymentDetails {
 
-    private Integer qtd_refunds;
-    private String last_refund_id;
-    private Boolean is_partial_refund;
-    private Double amount;
+    private Long id;
+    private Long bank_transfer_id;
+    private ContingencieDetails contingencie_details;
+    private PaymentRefundDetails refund_details;
 }

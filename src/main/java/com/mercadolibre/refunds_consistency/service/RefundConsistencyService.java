@@ -86,23 +86,35 @@ public class RefundConsistencyService {
         Double refundAmount = this.getRefundAmount(payinResponse);
 
         return ResponseModel.builder()
-            .payment_id(payment.getId())
-            .qtd_refunds_payments_api(qtdRefundsPayments)
-            .bank_transfer_id(payment.getTransaction_details().getBank_transfer_id())
-            .last_refund_status(lastRefundStatus)
-            .contingecie_details(
-                ContingencieDetails.builder()
-                    .contingencies(contingenciesList)
-                    .contingencie_status(payment.getContingencies().getStatus())
-                    .build()
+            .payment_details(
+                PaymentDetails.builder()
+                    .id(payment.getId())
+                    .bank_transfer_id(payment.getTransaction_details().getBank_transfer_id())
+                    .contingencie_details(
+                        ContingencieDetails.builder()
+                        .contingencies(contingenciesList)
+                        .contingencie_status(payment.getContingencies().getStatus())
+                        .build()
+                    )
+                    .refund_details(
+                        PaymentRefundDetails.builder()
+                        .qtd_refunds(qtdRefundsPayments)
+                        .last_refund_status(lastRefundStatus)
+                        .build()
+                    )
+                .build()
             )
-            .payin_refund_details(
-                PayinRefundDetails.builder()
-                    .qtd_refunds_payin_api(qtdRefundsPayin)
-                    .last_refund_id(lastRefundId)
-                    .is_partial_refund(isPartialRefund)
-                    .refund_amount(refundAmount)
-                    .build()
+            .payin_details(
+                PayinDetails.builder()
+                    .refund_details(
+                        PayinRefundDetails.builder()
+                        .qtd_refunds(qtdRefundsPayin)
+                        .last_refund_id(lastRefundId)
+                        .is_partial_refund(isPartialRefund)
+                        .amount(refundAmount)
+                        .build()
+                    )
+                .build()
             )
             .final_status_payment(finalStatus).build();
     }
